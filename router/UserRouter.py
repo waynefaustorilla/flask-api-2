@@ -7,7 +7,6 @@ from flask_jwt_extended import jwt_required
 from model.Users import Users
 from schema.UserSchema import UserSchema, UserUpdateSchema
 from database import database
-from utilities.bcrypt import bcrypt
 
 UserBlueprint = Blueprint("Users", __name__, description="Operations for Users")
 
@@ -24,21 +23,24 @@ class StoreList(MethodView):
     if validated["password"] != validated["repeat_password"]:
       abort(400, message="Passwords Do Not Match")
 
-    hash = bcrypt.generate_password_hash(validated["email"], 10).decode("utf-8")
+    try:
+      user = Users()
 
-    user = Users()
-    
-    user.set_firstname(validated["firstname"])
-    user.set_middlename(validated["middlename"])
-    user.set_lastname(validated["lastname"])
-    user.set_username(validated["username"])
-    user.set_email(validated["email"])
-    user.set_password(hash)
-    
-    database.session.add(user)
-    database.session.commit()
-    
-    return { "message": "User Created Successfully" }, 201
+      user.set_firstname(validated["firstname"])
+      user.set_middlename(validated["middlename"])
+      user.set_lastname(validated["lastname"])
+      user.set_username(validated["username"])
+      user.set_email(validated["email"])
+      user.set_password(validated["password"])
+
+      database.session.add(user)
+      database.session.commit()
+
+      return { "message": "User Created Successfully" }, 201
+    except SQLAlchemyError as error:
+      print(error)
+
+      abort(500, message="Something Went Wrong")
 
 @UserBlueprint.route("/<string:username>")
 class Store(MethodView):
@@ -63,7 +65,6 @@ class Store(MethodView):
     except SQLAlchemyError:
       abort(409, "Username is Already Taken")
 
-
   @jwt_required()
   def delete(self, username):
     user = self.findOrFail(username)
@@ -80,4 +81,3 @@ class Store(MethodView):
       abort(404, "User Not Found")
 
     return user
-

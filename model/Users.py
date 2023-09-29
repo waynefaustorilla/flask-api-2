@@ -1,27 +1,20 @@
 from database import database
+from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
 from pytz import timezone
+from passlib.hash import pbkdf2_sha256
 
 class Users(database.Model):
   __tablename__ = "users"
 
-  id = database.Column(database.Integer, primary_key=True)
-  firstname = database.Column(database.String(50), nullable=False)
-  middlename = database.Column(database.String(50), nullable=True)
-  lastname = database.Column(database.String(50), nullable=False)
-  username = database.Column(database.String(20), nullable=False, unique=True)
-  email = database.Column(database.String(100), nullable=False, unique=True)
-  password = database.Column(database.String(255), nullable=False)
-  date_created = database.Column(database.DateTime, default=datetime.utcnow().replace(tzinfo=timezone("UTC")).astimezone(timezone("Asia/Manila")))
-  
-  def __init__(self, firstname=None, middlename=None, lastname=None, username=None, email=None, password=None):
-    self.firstname = firstname
-    self.middlename = middlename
-    self.lastname = lastname
-    self.username = username
-    self.email = email
-    self.password = password
-    self.date_created = datetime.utcnow()
+  id = Column(Integer, primary_key=True)
+  firstname = Column(String(50), nullable=False)
+  middlename = Column(String(50), nullable=True)
+  lastname = Column(String(50), nullable=False)
+  username = Column(String(20), nullable=False, unique=True)
+  email = Column(String(100), nullable=False, unique=True)
+  password = Column(String(255), nullable=False)
+  date_created = Column(DateTime, default=datetime.utcnow().replace(tzinfo=timezone("UTC")).astimezone(timezone("Asia/Manila")))
     
   def set_firstname(self, firstname):
     self.firstname = firstname
@@ -39,4 +32,4 @@ class Users(database.Model):
     self.email = email
     
   def set_password(self, password):
-    self.password = password
+    self.password = pbkdf2_sha256.hash(password)

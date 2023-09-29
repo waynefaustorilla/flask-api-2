@@ -7,7 +7,6 @@ from router.ProductRouter import ProductBlueprint
 from router.AuthRouter import AuthBlueprint
 
 from database import database
-from utilities.bcrypt import bcrypt
 from utilities.jsonwebtoken import jsonwebtoken
 
 def create_app(config_filename):
@@ -16,7 +15,6 @@ def create_app(config_filename):
   app.config.from_pyfile(config_filename)
 
   database.init_app(app)
-  bcrypt.init_app(app)
   jsonwebtoken.init_app(app)
 
   api = Api(app)

@@ -2,11 +2,11 @@ from flask import make_response
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_smorest import abort
-from utilities.bcrypt import bcrypt
 from schema.AuthSchema import AuthSchema
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
 from model.Users import Users
+from passlib.hash import pbkdf2_sha256
 
 AuthBlueprint = Blueprint("Auth", __name__, description="Operations for Auth")
 
@@ -19,8 +19,7 @@ class Login(MethodView):
     if not user:
       abort(400, "Invalid Username or Password")
 
-    if not bcrypt.check_password_hash(user.password, validated["password"]):
-      print("Here!")
+    if not pbkdf2_sha256.verify(validated["password"], user.password):
       return abort(400, "Invalid Username or Password")
 
     access_token = create_access_token(identity=user.id)

@@ -5,7 +5,7 @@ sqlalchemy
 flask-sqlalchemy
 psycopg2
 marshmallow_sqlalchemy
-Flask-Bcrypt
+passlib
 marshmallow
 pytz
 flask_jwt_extended
